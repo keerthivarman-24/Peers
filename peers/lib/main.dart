@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'package:peers/login.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFF536DFE),
         ),
       ),
-      home: HomeScreen(),
+      home: LoginScreen(),
     );
   }
 }

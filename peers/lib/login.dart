@@ -1,10 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:peers/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:peers/session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -12,8 +13,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+
   bool _obscure = true;
-  late AnimationController _anim;
+  bool _loading = false;
+
+  late final AnimationController _anim;
 
   @override
   void initState() {
@@ -21,33 +27,96 @@ class _LoginScreenState extends State<LoginScreen>
     _anim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
-    );
-    _anim.forward();
+    )..forward();
   }
 
-  Future<void> _continueAsGuest() async {
-    final name = await _showGuestNameDialog();
-    if (name == null || name.trim().isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('guest_name', name.trim());
-    // proceed to guest flow, e.g. Navigator.pushReplacement(...)
+  @override
+  void dispose() {
+    _anim.dispose();
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
   }
 
-  Future<String?> _showGuestNameDialog() {
-    final TextEditingController _nameController = TextEditingController();
+  LinearGradient get _brandGradient => const LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+  );
+
+  void _continueAsGuest() {
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+  }
+
+  Future<void> _signIn() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _loading = true);
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 700)); // simulate API
+
+      // ✅ Basic demo logic: derive a display name from email prefix.
+      // Replace this with your real user's name from backend/auth.
+      final email = _email.text.trim();
+      final derivedName = email.contains('@')
+          ? email.split('@').first.replaceAll('.', ' ')
+          : 'User';
+
+      await Session.setDisplayName(_capitalizeWords(derivedName));
+
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login failed. Try again.')));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _capitalizeWords(String s) {
+    return s
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0].toUpperCase() + w.substring(1))
+        .join(' ');
+  }
+
+  Future<String?> _showNameDialog({
+    required String title,
+    required String subtitle,
+    required String primaryText,
+  }) {
+    final controller = TextEditingController();
+
     return showDialog<String>(
       context: context,
       barrierDismissible: true,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Continue as guest'),
-          content: TextField(
-            controller: _nameController,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Your name',
-              hintText: 'Enter your name',
-            ),
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(subtitle, style: const TextStyle(color: Colors.black54)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Your name',
+                  hintText: 'Eg: Keerthivarman',
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -55,14 +124,8 @@ class _LoginScreenState extends State<LoginScreen>
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final name = _nameController.text;
-                if (name.trim().isEmpty) return;
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
-              },
-              child: const Text('Continue'),
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: Text(primaryText),
             ),
           ],
         );
@@ -71,58 +134,21 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   @override
-  void dispose() {
-    _anim.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final gradient = const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [Color(0xFF3F51B5), Color(0xFF536DFE), Color(0xFF7C4DFF)],
-    );
-
     return Scaffold(
       body: Stack(
         children: [
-          // Decorative gradient blobs
-          Positioned(
-            top: -120,
-            left: -80,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                shape: BoxShape.circle,
-              ),
-              foregroundDecoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.02),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -140,
-            right: -100,
-            child: Container(
-              width: 320,
-              height: 320,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
+          // Background blobs
+          Positioned(top: -120, left: -80, child: _blob(300)),
+          Positioned(bottom: -140, right: -100, child: _blob(320)),
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Column(
                 children: [
-                  const SizedBox(height: 24),
-                  // App title / logo
+                  const SizedBox(height: 22),
+
                   FadeTransition(
                     opacity: CurvedAnimation(
                       parent: _anim,
@@ -130,73 +156,82 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: Column(
                       children: [
-                        // Replace with Image.asset or your logo widget
-                        CircleAvatar(
-                          radius: 36,
-                          backgroundColor: Colors.white.withOpacity(0.12),
-                          child: Icon(
-                            Icons.flutter_dash,
-                            size: 36,
+                        Container(
+                          width: 76,
+                          height: 76,
+                          decoration: BoxDecoration(
+                            gradient: _brandGradient,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.16),
+                                blurRadius: 18,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.forum_rounded,
                             color: Colors.white,
+                            size: 34,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
+                        const SizedBox(height: 14),
+                        const Text(
                           'Welcome Back',
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF111827),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
+                        const SizedBox(height: 6),
+                        const Text(
                           'Sign in to continue',
-                          style: TextStyle(fontSize: 14, color: Colors.black54),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF6B7280),
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 22),
 
-                  // Glass card
                   FadeTransition(
                     opacity: CurvedAnimation(
                       parent: _anim,
-                      curve: Interval(0.2, 1.0, curve: Curves.easeOut),
+                      curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
                     ),
-                    child: _buildGlassCard(context, gradient),
+                    child: _glassCard(),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 18),
 
-                  // Continue as guest pinned at bottom visually
                   TextButton(
-                    onPressed: () {
-                      _continueAsGuest();
-                    },
+                    onPressed: _continueAsGuest,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         vertical: 14,
                         horizontal: 20,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.person_outline,
                           size: 18,
-                          color: Colors.black54,
+                          color: Color(0xFF374151),
                         ),
                         SizedBox(width: 8),
                         Text(
                           'Continue as guest',
-                          style: TextStyle(color: Colors.black87),
+                          style: TextStyle(color: Color(0xFF111827)),
                         ),
                       ],
                     ),
@@ -210,22 +245,37 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildGlassCard(BuildContext context, Gradient gradient) {
+  Widget _blob(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: _brandGradient,
+        shape: BoxShape.circle,
+      ),
+      foregroundDecoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
+  Widget _glassCard() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.14)),
+            color: Colors.white.withOpacity(0.20),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white.withOpacity(0.18)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 10,
-                offset: Offset(0, 6),
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -233,20 +283,23 @@ class _LoginScreenState extends State<LoginScreen>
             key: _formKey,
             child: Column(
               children: [
-                // Email
                 TextFormField(
+                  controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   decoration: _inputDecoration(
                     label: 'Email',
                     icon: Icons.email_outlined,
                   ),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter email' : null,
+                  validator: (v) {
+                    final s = (v ?? '').trim();
+                    if (s.isEmpty) return 'Enter email';
+                    if (!s.contains('@')) return 'Enter valid email';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
-
-                // Password
                 TextFormField(
+                  controller: _password,
                   obscureText: _obscure,
                   decoration: _inputDecoration(
                     label: 'Password',
@@ -254,86 +307,75 @@ class _LoginScreenState extends State<LoginScreen>
                     suffix: IconButton(
                       icon: Icon(
                         _obscure ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.black54,
+                        color: const Color(0xFF374151),
                       ),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
-                  validator: (v) => (v == null || v.length < 6)
-                      ? 'Minimum 6 characters'
-                      : null,
+                  validator: (v) {
+                    final s = (v ?? '');
+                    if (s.length < 6) return 'Minimum 6 characters';
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
-                // Sign in button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        // Process login
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const HomeScreen(),
-                          ),
-                        );
-                      }
-                    },
-                    style:
-                        ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 4,
-                          backgroundColor: null,
-                        ).copyWith(
-                          // gradient background via MaterialStateProperty
-                          backgroundColor: MaterialStateProperty.resolveWith(
-                            (states) => null,
-                          ),
-                          shadowColor: MaterialStateProperty.all(
-                            Colors.black26,
-                          ),
-                        ),
+                    onPressed: _loading ? null : _signIn,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                    ),
                     child: Ink(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF3F51B5), Color(0xFF7C4DFF)],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
+                        gradient: _brandGradient,
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Container(
                         alignment: Alignment.center,
                         constraints: const BoxConstraints(minHeight: 48),
-                        child: const Text(
-                          'Sign In',
-
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
+                        child: _loading
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                // Forgot and social row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(color: Colors.black54),
-                      ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'Forgot password?',
+                      style: TextStyle(color: Color(0xFF374151)),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -350,12 +392,12 @@ class _LoginScreenState extends State<LoginScreen>
   }) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: Colors.black54),
+      prefixIcon: Icon(icon, color: const Color(0xFF374151)),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.white.withOpacity(0.06),
+      fillColor: Colors.white.withOpacity(0.25),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),

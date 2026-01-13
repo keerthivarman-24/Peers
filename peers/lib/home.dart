@@ -18,7 +18,9 @@ class _HomeScreenState extends State<HomeScreen>
       Icons.help_outline_rounded,
       'Ask Anonymously',
       'No identity. No fear.',
-      AskAnonymouslyScreen(),
+      AskAnonymouslyScreen(
+        displayName: null,
+      ), // TODO: pass actual name if logged in
     ),
     _Feature(
       Icons.explore_rounded,
@@ -70,9 +72,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _onAskDoubt() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const AskAnonymouslyScreen()));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AskAnonymouslyScreen(displayName: null),
+      ),
+    );
   }
 
   @override
