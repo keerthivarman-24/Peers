@@ -1,6 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:peers/askanonymously.dart';
+import 'package:peers/browsedoubts.dart';
+import 'package:peers/topanswers.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -44,26 +47,58 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20,
-                  children: const [
-                    FeatureCard(
-                      icon: Icons.help_outline_rounded,
-                      title: "Ask Anonymously",
-                      subtitle: "No identity. No fear.",
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AskAnonymouslyScreen(),
+                          ),
+                        );
+                      },
+                      child: FeatureCard(
+                        icon: Icons.help_outline_rounded,
+                        title: "Ask Anonymously",
+                        subtitle: "No identity. No fear.",
+                      ),
                     ),
-                    FeatureCard(
-                      icon: Icons.explore_rounded,
-                      title: "Browse Doubts",
-                      subtitle: "Learn from others",
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const BrowseDoubtsScreen(),
+                          ),
+                        );
+                      },
+                      child: FeatureCard(
+                        icon: Icons.explore_rounded,
+                        title: "Browse Doubts",
+                        subtitle: "Explore community questions",
+                      ),
                     ),
-                    FeatureCard(
-                      icon: Icons.history_rounded,
-                      title: "My Activity",
-                      subtitle: "Your questions & answers",
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to My Activity Screen
+                      },
+                      child: FeatureCard(
+                        icon: Icons.history_rounded,
+                        title: "My Activity",
+                        subtitle: "Your questions & answers",
+                      ),
                     ),
-                    FeatureCard(
-                      icon: Icons.star_border_rounded,
-                      title: "Top Answers",
-                      subtitle: "Community wisdom",
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TopAnswersScreen(),
+                          ),
+                        );
+                      },
+                      child: FeatureCard(
+                        icon: Icons.star_border_rounded,
+                        title: "Top Answers",
+                        subtitle: "Community wisdom",
+                      ),
                     ),
                   ],
                 ),

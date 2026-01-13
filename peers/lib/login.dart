@@ -58,7 +58,9 @@ class _LoginScreenState extends State<LoginScreen>
               onPressed: () {
                 final name = _nameController.text;
                 if (name.trim().isEmpty) return;
-                Navigator.of(context).pop(name.trim());
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
               },
               child: const Text('Continue'),
             ),
