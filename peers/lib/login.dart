@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:peers/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +23,49 @@ class _LoginScreenState extends State<LoginScreen>
       duration: const Duration(milliseconds: 700),
     );
     _anim.forward();
+  }
+
+  Future<void> _continueAsGuest() async {
+    final name = await _showGuestNameDialog();
+    if (name == null || name.trim().isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('guest_name', name.trim());
+    // proceed to guest flow, e.g. Navigator.pushReplacement(...)
+  }
+
+  Future<String?> _showGuestNameDialog() {
+    final TextEditingController _nameController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Continue as guest'),
+          content: TextField(
+            controller: _nameController,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Your name',
+              hintText: 'Enter your name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = _nameController.text;
+                if (name.trim().isEmpty) return;
+                Navigator.of(context).pop(name.trim());
+              },
+              child: const Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -127,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen>
                   // Continue as guest pinned at bottom visually
                   TextButton(
                     onPressed: () {
-                      // handle guest flow
+                      _continueAsGuest();
                     },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -224,7 +269,12 @@ class _LoginScreenState extends State<LoginScreen>
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        // handle sign in
+                        // Process login
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
                       }
                     },
                     style:
@@ -256,6 +306,7 @@ class _LoginScreenState extends State<LoginScreen>
                         constraints: const BoxConstraints(minHeight: 48),
                         child: const Text(
                           'Sign In',
+
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

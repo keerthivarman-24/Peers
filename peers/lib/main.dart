@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:peers/chat.dart';
 import 'login.dart';
+import 'home.dart';
+import 'chat.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,7 +20,7 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFF536DFE),
         ),
       ),
-      home: const LoginScreen(),
+      home: const DoubtScreen(),
     );
   }
 }
