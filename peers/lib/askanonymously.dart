@@ -1,61 +1,65 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:peers/session.dart';
+
+import 'app_scope.dart';
+import 'core/app_theme.dart';
+import 'core/ui.dart';
+import 'core/validators.dart';
+import 'models/attachment.dart';
 
 enum PostIdentity { anonymous, named }
 
 class AskAnonymouslyScreen extends StatefulWidget {
-  const AskAnonymouslyScreen({super.key, required displayName});
+  const AskAnonymouslyScreen({super.key});
 
   @override
   State<AskAnonymouslyScreen> createState() => _AskAnonymouslyScreenState();
 }
 
 class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final doubtController = TextEditingController();
   final attemptController = TextEditingController();
   final linkController = TextEditingController();
 
-  static const Color bg = Color(0xFFF8F9FC);
-  static const Color text = Color(0xFF1F2937);
-  static const Color muted = Color(0xFF6B7280);
-  static const Color primary = Color(0xFF4F46E5);
-  static const Color accent = Color(0xFF9333EA);
-  static const Color iconIndigo = Color(0xFF6366F1);
-
   PostIdentity identity = PostIdentity.anonymous;
 
   String? displayName;
-  bool loadingName = true;
+  String? userId;
+
+  bool loadingIdentity = true;
   bool submitting = false;
 
-  bool get hasDoubt => doubtController.text.trim().isNotEmpty;
+  final List<Attachment> _attachments = [];
+  final Set<String> _tags = {};
+
+  final List<String> availableTags = const [
+    'Calculus',
+    'Circuits',
+    'Quantum',
+    'Python',
+    'Flutter',
+    'Sem Exams',
+    'Physics',
+    'Programming',
+  ];
+
   bool get canUseName => (displayName ?? '').trim().isNotEmpty;
-
-  bool get canSubmit {
-    if (!hasDoubt) return false;
-    if (identity == PostIdentity.named && !canUseName) return false;
-    return !submitting;
-  }
-
-  LinearGradient get brandGradient => const LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, accent],
-  );
 
   @override
   void initState() {
     super.initState();
     doubtController.addListener(() => setState(() {}));
-    _loadName();
+    _loadIdentity();
   }
 
-  Future<void> _loadName() async {
-    setState(() => loadingName = true);
-    displayName = await Session.getDisplayName();
+  Future<void> _loadIdentity() async {
+    setState(() => loadingIdentity = true);
+    displayName = await AppScope.I.session.getDisplayName();
+    userId = await AppScope.I.session.getUserId();
     if (!mounted) return;
-    setState(() => loadingName = false);
+    setState(() => loadingIdentity = false);
   }
 
   @override
@@ -71,60 +75,68 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: AppTheme.bg,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _topHeader(context)),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 130),
             sliver: SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _identityCard(),
-                  const SizedBox(height: 14),
-
-                  _sectionCard(
-                    icon: Icons.help_outline_rounded,
-                    title: "Ask a Doubt",
-                    subtitle:
-                        "Be specific. Mention what you tried or where you got stuck.",
-                    hint:
-                        "Example: Why does current lead voltage in a capacitor?",
-                    controller: doubtController,
-                    maxLines: 5,
-                    maxLength: 500,
-                    showCounter: true,
-                  ),
-                  const SizedBox(height: 14),
-
-                  _sectionCard(
-                    icon: Icons.edit_note_rounded,
-                    title: "Your Attempt (Optional)",
-                    subtitle: "Helps others answer faster and more accurately.",
-                    hint: "Write steps / formulas / assumptions…",
-                    controller: attemptController,
-                    maxLines: 4,
-                    maxLength: 800,
-                  ),
-                  const SizedBox(height: 14),
-
-                  _uploadCard(),
-                  const SizedBox(height: 14),
-
-                  _sectionCard(
-                    icon: Icons.link_rounded,
-                    title: "Reference Link (Optional)",
-                    subtitle: "YouTube / blog / notes link for context",
-                    hint: "Paste a URL here",
-                    controller: linkController,
-                    maxLines: 1,
-                    maxLength: 400,
-                    keyboardType: TextInputType.url,
-                  ),
-
-                  const SizedBox(height: 10),
-                  _guidelinesCard(),
-                ],
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _identityCard(),
+                    const SizedBox(height: 14),
+                    _tagsCard(),
+                    const SizedBox(height: 14),
+                    _sectionCard(
+                      icon: Icons.help_outline_rounded,
+                      title: 'Ask a Doubt',
+                      subtitle: 'Be specific. Mention where you got stuck.',
+                      child: TextFormField(
+                        controller: doubtController,
+                        maxLines: 5,
+                        maxLength: 500,
+                        validator: (v) => Validators.requiredText(v ?? '', message: 'Enter your doubt'),
+                        decoration: _inputDecoration(hint: 'Example: Why does current lead voltage in a capacitor?'),
+                      ),
+                      footerRight: '${doubtController.text.trim().length}/500',
+                    ),
+                    const SizedBox(height: 14),
+                    _sectionCard(
+                      icon: Icons.edit_note_rounded,
+                      title: 'Your Attempt (Optional)',
+                      subtitle: 'This helps others answer faster.',
+                      child: TextFormField(
+                        controller: attemptController,
+                        maxLines: 4,
+                        maxLength: 800,
+                        decoration: _inputDecoration(hint: 'Write steps / formulas / assumptions…'),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _attachmentsCard(),
+                    const SizedBox(height: 14),
+                    _sectionCard(
+                      icon: Icons.link_rounded,
+                      title: 'Reference Link (Optional)',
+                      subtitle: 'YouTube / blog / notes link',
+                      child: TextFormField(
+                        controller: linkController,
+                        keyboardType: TextInputType.url,
+                        validator: (v) {
+                          final s = (v ?? '').trim();
+                          if (!Validators.isValidUrl(s)) return 'Enter a valid URL (https://...)';
+                          return null;
+                        },
+                        decoration: _inputDecoration(hint: 'Paste a URL here'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _guidelinesCard(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -137,27 +149,21 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
     );
   }
 
-  // ---------- Header ----------
   Widget _topHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        18,
-        MediaQuery.of(context).padding.top + 14,
-        18,
-        18,
-      ),
+      padding: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 14, 18, 18),
       decoration: BoxDecoration(
-        gradient: brandGradient,
+        gradient: AppTheme.brandGradient,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(26),
           bottomRight: Radius.circular(26),
         ),
         boxShadow: [
           BoxShadow(
-            color: primary.withOpacity(0.22),
+            color: AppTheme.primary.withOpacity(0.22),
             blurRadius: 22,
             offset: const Offset(0, 10),
-          ),
+          )
         ],
       ),
       child: Row(
@@ -180,20 +186,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Ask a Question",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.2,
-                  ),
-                ),
+                Text('Ask a Question', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                 SizedBox(height: 4),
-                Text(
-                  "Choose anonymous or show your name.",
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
-                ),
+                Text('Choose anonymous or show your name.', style: TextStyle(color: Colors.white70, fontSize: 13)),
               ],
             ),
           ),
@@ -207,10 +202,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.white.withOpacity(0.12)),
               ),
-              child: const Icon(
-                Icons.info_outline_rounded,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.info_outline_rounded, color: Colors.white),
             ),
           ),
         ],
@@ -218,99 +210,62 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
     );
   }
 
-  // ---------- Identity ----------
   Widget _identityCard() {
     final isNamed = identity == PostIdentity.named;
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: Ui.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              _iconBadge(Icons.person_rounded),
+              Ui.iconBadge(Icons.person_rounded),
               const SizedBox(width: 10),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Posting Identity",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15.5,
-                        color: text,
-                      ),
-                    ),
+                    Text('Posting Identity', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
                     SizedBox(height: 2),
-                    Text(
-                      "Choose how your post appears to others.",
-                      style: TextStyle(fontSize: 12.5, color: muted),
-                    ),
+                    Text('Choose how your post appears to others.', style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
                   ],
                 ),
               ),
-              if (loadingName)
-                const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2.2),
-                )
+              if (loadingIdentity)
+                const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2.2))
               else
                 IconButton(
-                  tooltip: "Refresh name",
-                  onPressed: _loadName,
-                  icon: const Icon(Icons.refresh_rounded, color: muted),
+                  tooltip: 'Refresh',
+                  onPressed: _loadIdentity,
+                  icon: const Icon(Icons.refresh_rounded, color: AppTheme.muted),
                 ),
             ],
           ),
           const SizedBox(height: 12),
-
-          // segments
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(14),
-            ),
+            decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(14)),
             child: Row(
               children: [
                 Expanded(
                   child: _segment(
                     selected: identity == PostIdentity.anonymous,
-                    label: "Anonymous",
+                    label: 'Anonymous',
                     icon: Icons.visibility_off_rounded,
-                    onTap: () =>
-                        setState(() => identity = PostIdentity.anonymous),
+                    onTap: () => setState(() => identity = PostIdentity.anonymous),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: _segment(
                     selected: isNamed,
-                    label: "Show Name",
+                    label: 'Show Name',
                     icon: Icons.badge_rounded,
                     onTap: () {
                       if (!canUseName) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "No name found. Set your name in Login/Guest to use 'Show Name'.",
-                            ),
-                          ),
-                        );
+                        Ui.snack(context, "No name found. Set it in Login/Guest to use 'Show Name'.");
                         setState(() => identity = PostIdentity.anonymous);
                         return;
                       }
@@ -321,73 +276,43 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 12),
-
-          if (isNamed && canUseName) ...[
+          if (isNamed && canUseName)
             Wrap(
               spacing: 10,
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: brandGradient,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(gradient: AppTheme.brandGradient, borderRadius: BorderRadius.circular(999)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.badge_outlined,
-                        size: 16,
-                        color: Colors.white,
-                      ),
+                      const Icon(Icons.badge_outlined, size: 16, color: Colors.white),
                       const SizedBox(width: 8),
-                      Text(
-                        "Posting as: ${displayName ?? ''}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12.5,
-                        ),
-                      ),
+                      Text('Posting as: ${displayName ?? ''}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12.5)),
                     ],
                   ),
                 ),
-                const Text(
-                  "Visible to everyone",
-                  style: TextStyle(color: muted, fontSize: 12.5),
-                ),
+                const Text('Visible to everyone', style: TextStyle(color: AppTheme.muted, fontSize: 12.5)),
               ],
-            ),
-          ] else ...[
+            )
+          else
             const Row(
               children: [
-                Icon(Icons.lock_outline_rounded, size: 16, color: muted),
+                Icon(Icons.lock_outline_rounded, size: 16, color: AppTheme.muted),
                 SizedBox(width: 6),
-                Text(
-                  "Your identity will not be visible to others.",
-                  style: TextStyle(fontSize: 12, color: muted),
-                ),
+                Text('Your identity will not be visible to others.', style: TextStyle(fontSize: 12, color: AppTheme.muted)),
               ],
             ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _segment({
-    required bool selected,
-    required String label,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _segment({required bool selected, required String label, required IconData icon, required VoidCallback onTap}) {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
@@ -396,215 +321,241 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: selected ? brandGradient : null,
+          gradient: selected ? AppTheme.brandGradient : null,
           color: selected ? null : Colors.transparent,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: selected ? Colors.white : muted),
+            Icon(icon, size: 18, color: selected ? Colors.white : AppTheme.muted),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                color: selected ? Colors.white : muted,
-                fontSize: 13.5,
-              ),
-            ),
+            Text(label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: selected ? Colors.white : AppTheme.muted,
+                  fontSize: 13.5,
+                )),
           ],
         ),
       ),
     );
   }
 
-  // ---------- Cards ----------
+  Widget _tagsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: Ui.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Ui.iconBadge(Icons.tag_rounded),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Tags', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                    SizedBox(height: 2),
+                    Text('Select 1–3 tags for better reach.', style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: availableTags.map((t) {
+              final selected = _tags.contains(t);
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () {
+                  setState(() {
+                    if (selected) {
+                      _tags.remove(t);
+                    } else {
+                      if (_tags.length >= 3) {
+                        Ui.snack(context, 'Select up to 3 tags only.');
+                        return;
+                      }
+                      _tags.add(t);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: selected ? AppTheme.primary.withOpacity(0.12) : const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: selected ? AppTheme.primary.withOpacity(0.35) : Colors.transparent),
+                  ),
+                  child: Text(
+                    t,
+                    style: TextStyle(
+                      color: selected ? AppTheme.primary : const Color(0xFF374151),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12.2,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _attachmentsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: Ui.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Ui.iconBadge(Icons.upload_file_rounded),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Attachments (Optional)',
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                    SizedBox(height: 2),
+                    Text('UI ready. Picker/storage will be connected later.',
+                        style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _pickAttachments,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text('Add', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+              )
+            ],
+          ),
+          if (_attachments.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Column(
+              children: _attachments.map((a) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.insert_drive_file_rounded, color: AppTheme.iconIndigo),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            a.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: AppTheme.text, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Remove',
+                          onPressed: () => setState(() => _attachments.removeWhere((x) => x.id == a.id)),
+                          icon: const Icon(Icons.close_rounded, color: AppTheme.muted),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            )
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickAttachments() async {
+    final picked = await AppScope.I.picker.pickFiles();
+    if (!mounted) return;
+
+    if (picked.isEmpty) {
+      Ui.snack(context, 'File picker not added yet. Will connect later.');
+      return;
+    }
+
+    setState(() => _attachments.addAll(picked));
+  }
+
   Widget _sectionCard({
     required IconData icon,
     required String title,
     required String subtitle,
-    required String hint,
-    required TextEditingController controller,
-    required int maxLines,
-    TextInputType keyboardType = TextInputType.text,
-    int? maxLength,
-    bool showCounter = false,
+    required Widget child,
+    String? footerRight,
   }) {
-    final len = controller.text.trim().length;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 22,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  _iconBadge(icon),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15.5,
-                            color: text,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            color: muted,
-                            height: 1.25,
-                          ),
-                        ),
-                      ],
-                    ),
+    return Ui.glassChild(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: Ui.cardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Ui.iconBadge(icon),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                      const SizedBox(height: 2),
+                      Text(subtitle,
+                          style: const TextStyle(fontSize: 12.5, color: AppTheme.muted, height: 1.25)),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              TextField(
-                controller: controller,
-                maxLines: maxLines,
-                maxLength: maxLength,
-                keyboardType: keyboardType,
-                style: const TextStyle(
-                  color: text,
-                  fontSize: 14.5,
-                  height: 1.35,
-                ),
-                decoration: InputDecoration(
-                  hintText: hint,
-                  hintStyle: TextStyle(color: muted.withOpacity(0.85)),
-                  filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 14,
-                  ),
-                  counterText: "",
-                ),
-              ),
-
-              if (showCounter) ...[
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Keep it clear and complete",
-                      style: TextStyle(color: muted, fontSize: 12),
-                    ),
-                    Text(
-                      maxLength == null ? "$len" : "$len/$maxLength",
-                      style: TextStyle(
-                        color: (maxLength != null && len >= maxLength)
-                            ? Colors.redAccent
-                            : muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
                 ),
               ],
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            child,
+            if (footerRight != null) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(footerRight,
+                    style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w800, fontSize: 12)),
+              )
+            ]
+          ],
         ),
       ),
     );
   }
 
-  Widget _uploadCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          _iconBadge(Icons.upload_file_rounded),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Upload File (Optional)",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15.5,
-                    color: text,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  "PDF/image/notes help others understand faster.",
-                  style: TextStyle(fontSize: 12.5, color: muted, height: 1.25),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          ElevatedButton(
-            onPressed: _pickFile,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primary,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: const Text(
-              "Upload",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
+  InputDecoration _inputDecoration({required String hint}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: AppTheme.muted.withOpacity(0.85)),
+      filled: true,
+      fillColor: const Color(0xFFF9FAFB),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      counterText: '',
     );
-  }
-
-  static void _pickFile() {
-    // TODO: Add file_picker package later.
-    // For now, keep stub.
   }
 
   Widget _guidelinesCard() {
@@ -620,15 +571,15 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
         ),
         child: const Row(
           children: [
-            Icon(Icons.lightbulb_outline_rounded, color: iconIndigo),
+            Icon(Icons.lightbulb_outline_rounded, color: AppTheme.iconIndigo),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                "Tips: Add subject + unit + what you tried. It increases good answers.",
-                style: TextStyle(color: muted, fontSize: 12.5, height: 1.25),
+                'Tips: Add tag + what you tried. It increases good answers.',
+                style: TextStyle(color: AppTheme.muted, fontSize: 12.5, height: 1.25),
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: muted),
+            Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
           ],
         ),
       ),
@@ -640,29 +591,21 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
       context: context,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
       builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+        return const Padding(
+          padding: EdgeInsets.fromLTRB(18, 8, 18, 18),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                "How to get better answers",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  color: text,
-                ),
-              ),
+            children: [
+              Text('How to get better answers',
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppTheme.text)),
               SizedBox(height: 10),
-              _Tip("Mention subject/unit (e.g., Circuit Theory – AC)."),
-              _Tip("Include known values + what you tried."),
-              _Tip("Upload image of question if possible."),
-              _Tip("Avoid vague titles like “Help” — be specific."),
+              _Tip('Choose 1–3 relevant tags.'),
+              _Tip('Include known values + what you tried.'),
+              _Tip('Upload an image/PDF (later via Firebase Storage).'),
+              _Tip('Avoid vague text like “Help” — be specific.'),
               SizedBox(height: 10),
             ],
           ),
@@ -671,46 +614,47 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
     );
   }
 
-  // ---------- Submit Bar ----------
   Widget _submitBar() {
     final isNamed = identity == PostIdentity.named;
-    final helper = isNamed
-        ? "Your name will be visible on this post"
-        : "Your identity stays hidden";
-    final btnText = isNamed ? "Post with Name" : "Post Anonymously";
+    final helper = isNamed ? 'Your name will be visible on this post' : 'Your identity stays hidden';
+    final btnText = isNamed ? 'Post with Name' : 'Post Anonymously';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
-            Icon(
-              isNamed ? Icons.badge_outlined : Icons.lock_outline_rounded,
-              size: 16,
-              color: muted.withOpacity(0.95),
-            ),
+            Icon(isNamed ? Icons.badge_outlined : Icons.lock_outline_rounded,
+                size: 16, color: AppTheme.muted.withOpacity(0.95)),
             const SizedBox(width: 6),
-            Text(
-              helper,
-              style: TextStyle(color: muted.withOpacity(0.95), fontSize: 12.5),
-            ),
+            Text(helper, style: TextStyle(color: AppTheme.muted.withOpacity(0.95), fontSize: 12.5)),
           ],
         ),
         const SizedBox(height: 10),
         GestureDetector(
-          onTap: canSubmit ? _submit : null,
+          onTap: submitting
+              ? null
+              : () async {
+                  final ok = _formKey.currentState?.validate() ?? false;
+                  if (!ok) return;
+                  if (identity == PostIdentity.named && !canUseName) {
+                    Ui.snack(context, 'No name found. Use Anonymous or set name in Login.');
+                    return;
+                  }
+                  await _submit();
+                },
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 180),
-            opacity: canSubmit ? 1.0 : 0.5,
+            opacity: submitting ? 0.7 : 1.0,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                gradient: brandGradient,
+                gradient: AppTheme.brandGradient,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: iconIndigo.withOpacity(0.35),
+                    color: AppTheme.iconIndigo.withOpacity(0.35),
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
@@ -723,20 +667,11 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         width: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : Text(
-                        btnText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
+                    : Text(btnText,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
             ),
           ),
@@ -746,60 +681,37 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
   }
 
   Future<void> _submit() async {
-    if (!canSubmit) return;
-
+    if (submitting) return;
     setState(() => submitting = true);
 
     try {
       final isAnonymous = identity == PostIdentity.anonymous;
 
-      final payload = {
-        "question": doubtController.text.trim(),
-        "attempt": attemptController.text.trim(),
-        "link": linkController.text.trim(),
-        "isAnonymous": isAnonymous,
-        "authorName": isAnonymous ? null : displayName,
-        "createdAt": DateTime.now().toIso8601String(),
-      };
-
-      // TODO: Send payload to backend/firestore.
-      await Future.delayed(const Duration(milliseconds: 700));
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isAnonymous
-                ? "Posted anonymously ✅"
-                : "Posted as ${displayName ?? ''} ✅",
-          ),
-        ),
+      final res = await AppScope.I.doubts.createDoubt(
+        question: doubtController.text.trim(),
+        attempt: attemptController.text.trim(),
+        link: linkController.text.trim(),
+        isAnonymous: isAnonymous,
+        authorName: isAnonymous ? null : displayName,
+        authorId: userId,
+        tags: _tags.isEmpty ? const ['General'] : _tags.toList(),
+        attachments: _attachments,
       );
 
-      Navigator.pop(context); // go back after posting (optional)
-      // print(payload); // debug
+      if (!mounted) return;
+      if (!res.ok) {
+        Ui.snack(context, res.error ?? 'Failed to post');
+        return;
+      }
+
+      Ui.snack(context, 'Posted ✅ (mock backend). Firebase later.');
+      Navigator.pop(context);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to post. Try again.")),
-      );
+      Ui.snack(context, 'Failed to post. Try again.');
     } finally {
       if (mounted) setState(() => submitting = false);
     }
-  }
-
-  // ---------- UI helpers ----------
-  Widget _iconBadge(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(icon, color: iconIndigo, size: 22),
-    );
   }
 }
 
@@ -814,24 +726,14 @@ class _Tip extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.check_circle_rounded,
-            size: 18,
-            color: Color(0xFF4F46E5),
-          ),
+          const Icon(Icons.check_circle_rounded, size: 18, color: AppTheme.primary),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Color(0xFF374151),
-                fontSize: 13,
-                height: 1.25,
-              ),
-            ),
+            child: Text(text, style: const TextStyle(color: Color(0xFF374151), fontSize: 13, height: 1.25)),
           ),
         ],
       ),
     );
   }
 }
+
