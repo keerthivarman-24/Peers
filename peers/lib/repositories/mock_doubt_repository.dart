@@ -131,10 +131,12 @@ class MockDoubtRepository implements DoubtRepository {
     await Future.delayed(const Duration(milliseconds: 180));
 
     final list = _db.where((d) {
-      if (authorId != null && authorId.isNotEmpty)
+      if (authorId != null && authorId.isNotEmpty) {
         return d.authorId == authorId;
-      if (authorName != null && authorName.isNotEmpty)
+      }
+      if (authorName != null && authorName.isNotEmpty) {
         return d.authorName == authorName;
+      }
       return false;
     }).toList();
 

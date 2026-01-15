@@ -30,7 +30,10 @@ class FirestoreDoubtRepository implements DoubtRepository {
   }
 
   @override
-  Future<Result<List<Doubt>>> fetchMyActivity({required String? authorId, required String? authorName}) {
+  Future<Result<List<Doubt>>> fetchMyActivity({
+    required String? authorId,
+    required String? authorName,
+  }) {
     throw UnimplementedError('Connect to Firestore later');
   }
 
@@ -51,7 +54,10 @@ class FirestoreDoubtRepository implements DoubtRepository {
   }
 
   @override
-  Future<Result<Doubt>> toggleUpvote({required String doubtId, required String voterKey}) {
+  Future<Result<Doubt>> toggleUpvote({
+    required String doubtId,
+    required String voterKey,
+  }) {
     throw UnimplementedError('Connect to Firestore later');
   }
 
@@ -60,4 +66,3 @@ class FirestoreDoubtRepository implements DoubtRepository {
     throw UnimplementedError('Connect to Firestore later');
   }
 }
-

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app_scope.dart';
@@ -59,7 +58,7 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
                 padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
                 sliver: SliverList.separated(
                   itemCount: list.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (_, i) => _card(list[i]),
                 ),
               ),
@@ -71,10 +70,18 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
 
   Widget _header(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 14, 18, 18),
+      padding: EdgeInsets.fromLTRB(
+        18,
+        MediaQuery.of(context).padding.top + 14,
+        18,
+        18,
+      ),
       decoration: const BoxDecoration(
         gradient: AppTheme.brandGradient,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
+        ),
       ),
       child: Row(
         children: [
@@ -84,9 +91,9 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
@@ -96,9 +103,19 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Top Answers', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text(
+                  'Top Answers',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Questions with the most answers.', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  'Questions with the most answers.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -110,7 +127,10 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
   Widget _card(Doubt d) {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id)),
+      ),
       child: Ui.glassChild(
         child: Container(
           padding: const EdgeInsets.all(16),
@@ -127,7 +147,11 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
                       d.question,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w900, color: AppTheme.text),
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.text,
+                      ),
                     ),
                   ),
                 ],
@@ -139,9 +163,15 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
                   const SizedBox(width: 8),
                   _pill('Upvotes: ${d.upvotes}'),
                   const Spacer(),
-                  Text(Ui.timeAgo(d.createdAt), style: const TextStyle(color: AppTheme.muted, fontSize: 12.2)),
+                  Text(
+                    Ui.timeAgo(d.createdAt),
+                    style: const TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 12.2,
+                    ),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -152,8 +182,18 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
   Widget _pill(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(999)),
-      child: Text(text, style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w900, fontSize: 12.2)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppTheme.muted,
+          fontWeight: FontWeight.w900,
+          fontSize: 12.2,
+        ),
+      ),
     );
   }
 
@@ -174,21 +214,35 @@ class _TopAnswersScreenState extends State<TopAnswersScreen> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.star_rounded, color: AppTheme.iconIndigo, size: 28),
+              child: const Icon(
+                Icons.star_rounded,
+                color: AppTheme.iconIndigo,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 12),
-            const Text('No data yet',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+            const Text(
+              'No data yet',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.5,
+                color: AppTheme.text,
+              ),
+            ),
             const SizedBox(height: 6),
-            const Text('Once users answer doubts, this will populate.',
-                style: TextStyle(color: AppTheme.muted, fontSize: 12.5), textAlign: TextAlign.center),
+            const Text(
+              'Once users answer doubts, this will populate.',
+              style: TextStyle(color: AppTheme.muted, fontSize: 12.5),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
     );
   }
 }
-

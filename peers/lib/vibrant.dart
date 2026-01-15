@@ -87,7 +87,7 @@ class _AnimatedHomeScreenState extends State<AnimatedHomeScreen>
                               14,
                               14,
                               50,
-                            ).withOpacity(0.25),
+                            ).withValues(alpha: 0.25),
                             Colors.transparent,
                           ],
                         ),
@@ -153,7 +153,7 @@ class _AnimatedHomeScreenState extends State<AnimatedHomeScreen>
           borderRadius: BorderRadius.circular(40),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6366F1).withOpacity(0.4),
+              color: const Color(0xFF6366F1).withValues(alpha: 0.4),
               blurRadius: 25,
               offset: const Offset(0, 12),
             ),

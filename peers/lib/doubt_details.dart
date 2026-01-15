@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app_scope.dart';
@@ -46,7 +45,7 @@ class _DoubtDetailsScreenState extends State<DoubtDetailsScreen> {
     if (!mounted) return;
 
     setState(() {
-      doubt = res.data ?? null;
+      doubt = res.data;
       loading = false;
     });
   }
@@ -64,7 +63,7 @@ class _DoubtDetailsScreenState extends State<DoubtDetailsScreen> {
           ? Center(
               child: Text(
                 'Doubt not found',
-                style: TextStyle(color: AppTheme.muted.withOpacity(0.9)),
+                style: TextStyle(color: AppTheme.muted.withValues(alpha: 0.9)),
               ),
             )
           : CustomScrollView(
@@ -113,9 +112,9 @@ class _DoubtDetailsScreenState extends State<DoubtDetailsScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
@@ -395,7 +394,7 @@ class _DoubtDetailsScreenState extends State<DoubtDetailsScreen> {
                 Switch(
                   value: answerAnonymous,
                   onChanged: (v) => setState(() => answerAnonymous = v),
-                  activeColor: AppTheme.primary,
+                  activeThumbColor: AppTheme.primary,
                 ),
               ],
             ),

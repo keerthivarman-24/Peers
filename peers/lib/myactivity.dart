@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app_scope.dart';
@@ -32,7 +31,10 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
     displayName = await AppScope.I.session.getDisplayName();
     userId = await AppScope.I.session.getUserId();
 
-    final res = await AppScope.I.doubts.fetchMyActivity(authorId: userId, authorName: displayName);
+    final res = await AppScope.I.doubts.fetchMyActivity(
+      authorId: userId,
+      authorName: displayName,
+    );
     if (!mounted) return;
 
     setState(() {
@@ -66,7 +68,7 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
                 padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
                 sliver: SliverList.separated(
                   itemCount: list.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (_, i) => _card(list[i]),
                 ),
               ),
@@ -78,10 +80,18 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
 
   Widget _header(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 14, 18, 18),
+      padding: EdgeInsets.fromLTRB(
+        18,
+        MediaQuery.of(context).padding.top + 14,
+        18,
+        18,
+      ),
       decoration: const BoxDecoration(
         gradient: AppTheme.brandGradient,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
+        ),
       ),
       child: Row(
         children: [
@@ -91,9 +101,9 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
@@ -103,10 +113,19 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('My Activity', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                const Text(
+                  'My Activity',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  displayName == null ? 'Your posts (guest/name not set)' : 'Posts by ${displayName!}',
+                  displayName == null
+                      ? 'Your posts (guest/name not set)'
+                      : 'Posts by ${displayName!}',
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
@@ -120,7 +139,10 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
   Widget _card(Doubt d) {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id)),
+      ),
       child: Ui.glassChild(
         child: Container(
           padding: const EdgeInsets.all(16),
@@ -128,10 +150,16 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(d.question,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w900, color: AppTheme.text)),
+              Text(
+                d.question,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.text,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -139,9 +167,15 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
                   const SizedBox(width: 12),
                   _stat(Icons.thumb_up_alt_outlined, '${d.upvotes}'),
                   const Spacer(),
-                  Text(Ui.timeAgo(d.createdAt), style: const TextStyle(color: AppTheme.muted, fontSize: 12.2)),
+                  Text(
+                    Ui.timeAgo(d.createdAt),
+                    style: const TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 12.2,
+                    ),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -154,7 +188,13 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
       children: [
         Icon(icon, size: 16, color: AppTheme.muted),
         const SizedBox(width: 6),
-        Text(value, style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w900)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppTheme.muted,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ],
     );
   }
@@ -176,21 +216,35 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.history_rounded, color: AppTheme.iconIndigo, size: 28),
+              child: const Icon(
+                Icons.history_rounded,
+                color: AppTheme.iconIndigo,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 12),
-            const Text('No activity yet',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+            const Text(
+              'No activity yet',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.5,
+                color: AppTheme.text,
+              ),
+            ),
             const SizedBox(height: 6),
-            const Text('Post your first doubt to see it here.',
-                style: TextStyle(color: AppTheme.muted, fontSize: 12.5), textAlign: TextAlign.center),
+            const Text(
+              'Post your first doubt to see it here.',
+              style: TextStyle(color: AppTheme.muted, fontSize: 12.5),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
     );
   }
 }
-

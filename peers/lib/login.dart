@@ -144,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.16),
+                                color: Colors.black.withValues(alpha: 0.16),
                                 blurRadius: 18,
                                 offset: const Offset(0, 10),
                               ),
@@ -227,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen>
         shape: BoxShape.circle,
       ),
       foregroundDecoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         shape: BoxShape.circle,
       ),
     );
@@ -241,12 +241,12 @@ class _LoginScreenState extends State<LoginScreen>
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.22),
+            color: Colors.white.withValues(alpha: 0.22),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withOpacity(0.18)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 16,
                 offset: const Offset(0, 10),
               ),
@@ -354,7 +354,7 @@ class _LoginScreenState extends State<LoginScreen>
       prefixIcon: Icon(icon, color: const Color(0xFF374151)),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.white.withOpacity(0.25),
+      fillColor: Colors.white.withValues(alpha: 0.25),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,

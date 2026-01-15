@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app_scope.dart';
@@ -135,8 +134,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         keyboardType: TextInputType.url,
                         validator: (v) {
                           final s = (v ?? '').trim();
-                          if (!Validators.isValidUrl(s))
-                            return 'Enter a valid URL (https://...)';
+                          if (!Validators.isValidUrl(s)) {
+                            return 'Enter a valid URL (https://example.com)';
+                          }
                           return null;
                         },
                         decoration: _inputDecoration(hint: 'Paste a URL here'),
@@ -174,7 +174,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(0.22),
+            color: AppTheme.primary.withValues(alpha: 0.22),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -188,9 +188,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
@@ -222,9 +222,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(
                 Icons.info_outline_rounded,
@@ -490,12 +490,12 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: selected
-                        ? AppTheme.primary.withOpacity(0.12)
+                        ? AppTheme.primary.withValues(alpha: 0.12)
                         : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: selected
-                          ? AppTheme.primary.withOpacity(0.35)
+                          ? AppTheme.primary.withValues(alpha: 0.35)
                           : Colors.transparent,
                     ),
                   ),
@@ -706,7 +706,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
   InputDecoration _inputDecoration({required String hint}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: AppTheme.muted.withOpacity(0.85)),
+      hintStyle: TextStyle(color: AppTheme.muted.withValues(alpha: 0.85)),
       filled: true,
       fillColor: const Color(0xFFF9FAFB),
       border: OutlineInputBorder(
@@ -801,13 +801,13 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             Icon(
               isNamed ? Icons.badge_outlined : Icons.lock_outline_rounded,
               size: 16,
-              color: AppTheme.muted.withOpacity(0.95),
+              color: AppTheme.muted.withValues(alpha: 0.95),
             ),
             const SizedBox(width: 6),
             Text(
               helper,
               style: TextStyle(
-                color: AppTheme.muted.withOpacity(0.95),
+                color: AppTheme.muted.withValues(alpha: 0.95),
                 fontSize: 12.5,
               ),
             ),
@@ -840,7 +840,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.iconIndigo.withOpacity(0.35),
+                    color: AppTheme.iconIndigo.withValues(alpha: 0.35),
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),

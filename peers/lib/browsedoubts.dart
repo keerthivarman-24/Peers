@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app_scope.dart';
@@ -102,8 +101,14 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Text('Trending Topics 🔥',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.text)),
+                        const Text(
+                          'Trending Topics 🔥',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.text,
+                          ),
+                        ),
                         const Spacer(),
                         _sortMenu(),
                       ],
@@ -113,14 +118,32 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Text('Doubts Feed',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.text)),
+                        const Text(
+                          'Doubts Feed',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.text,
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(999)),
-                          child: Text('${doubts.length}',
-                              style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w900, fontSize: 12.5)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '${doubts.length}',
+                            style: const TextStyle(
+                              color: AppTheme.muted,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12.5,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -143,7 +166,7 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                 padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
                 sliver: SliverList.separated(
                   itemCount: doubts.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (_, i) => _doubtCard(doubts[i]),
                 ),
               ),
@@ -155,10 +178,18 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
 
   Widget _header(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 14, 18, 18),
+      padding: EdgeInsets.fromLTRB(
+        18,
+        MediaQuery.of(context).padding.top + 14,
+        18,
+        18,
+      ),
       decoration: const BoxDecoration(
         gradient: AppTheme.brandGradient,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
+        ),
       ),
       child: Row(
         children: [
@@ -168,9 +199,9 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
@@ -180,9 +211,19 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Browse Doubts', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text(
+                  'Browse Doubts',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Search, filter, and explore.', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  'Search, filter, and explore.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -230,7 +271,7 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: topics.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, i) {
           final t = topics[i];
           final selected = _topic == t;
@@ -244,12 +285,21 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                 gradient: selected ? AppTheme.brandGradient : null,
                 color: selected ? null : Colors.white,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: selected ? Colors.transparent : const Color(0xFFE5E7EB)),
+                border: Border.all(
+                  color: selected
+                      ? Colors.transparent
+                      : const Color(0xFFE5E7EB),
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(selected ? Icons.check_circle_rounded : Icons.local_fire_department_rounded,
-                      size: 16, color: selected ? Colors.white : AppTheme.iconIndigo),
+                  Icon(
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.local_fire_department_rounded,
+                    size: 16,
+                    color: selected ? Colors.white : AppTheme.iconIndigo,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     t,
@@ -282,7 +332,10 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
           icon: const Icon(Icons.expand_more_rounded, color: AppTheme.muted),
           items: const [
             DropdownMenuItem(value: DoubtSort.latest, child: Text('Latest')),
-            DropdownMenuItem(value: DoubtSort.unanswered, child: Text('Unanswered')),
+            DropdownMenuItem(
+              value: DoubtSort.unanswered,
+              child: Text('Unanswered'),
+            ),
             DropdownMenuItem(value: DoubtSort.top, child: Text('Top')),
           ],
           onChanged: (v) {
@@ -299,7 +352,10 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id)),
+        );
       },
       child: Ui.glassChild(
         child: Container(
@@ -312,14 +368,23 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                 d.question,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w900, color: AppTheme.text, height: 1.15),
+                style: const TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.text,
+                  height: 1.15,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 d.attempt.isEmpty ? 'No attempt added.' : d.attempt,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13.2, color: AppTheme.muted, height: 1.25),
+                style: const TextStyle(
+                  fontSize: 13.2,
+                  color: AppTheme.muted,
+                  height: 1.25,
+                ),
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -334,22 +399,43 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                   const SizedBox(width: 12),
                   _stat(Icons.thumb_up_alt_outlined, '${d.upvotes}'),
                   const Spacer(),
-                  Text(Ui.timeAgo(d.createdAt), style: const TextStyle(color: AppTheme.muted, fontSize: 12.2)),
+                  Text(
+                    Ui.timeAgo(d.createdAt),
+                    style: const TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 12.2,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(gradient: AppTheme.brandGradient, borderRadius: BorderRadius.circular(999)),
-                    child: const Text('Open',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12.5)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.brandGradient,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Text(
+                      'Open',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12.5,
+                      ),
+                    ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppTheme.muted,
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -360,8 +446,18 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
   Widget _tag(String t) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(999)),
-      child: Text(t, style: const TextStyle(color: Color(0xFF374151), fontWeight: FontWeight.w800, fontSize: 12.2)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        t,
+        style: const TextStyle(
+          color: Color(0xFF374151),
+          fontWeight: FontWeight.w800,
+          fontSize: 12.2,
+        ),
+      ),
     );
   }
 
@@ -370,7 +466,13 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
       children: [
         Icon(icon, size: 16, color: AppTheme.muted),
         const SizedBox(width: 6),
-        Text(value, style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w900)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppTheme.muted,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ],
     );
   }
@@ -392,17 +494,32 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.search_off_rounded, color: AppTheme.iconIndigo, size: 28),
+              child: const Icon(
+                Icons.search_off_rounded,
+                color: AppTheme.iconIndigo,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 12),
-            const Text('No doubts found',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+            const Text(
+              'No doubts found',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.5,
+                color: AppTheme.text,
+              ),
+            ),
             const SizedBox(height: 6),
-            const Text('Try different keywords or remove filters.',
-                style: TextStyle(color: AppTheme.muted, fontSize: 12.5), textAlign: TextAlign.center),
+            const Text(
+              'Try different keywords or remove filters.',
+              style: TextStyle(color: AppTheme.muted, fontSize: 12.5),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: () {
@@ -413,7 +530,11 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
                 _search.clear();
                 _fetch();
               },
-              style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
               child: const Text('Reset filters'),
             ),
           ],
@@ -422,4 +543,3 @@ class _BrowseDoubtsScreenState extends State<BrowseDoubtsScreen> {
     );
   }
 }
-
