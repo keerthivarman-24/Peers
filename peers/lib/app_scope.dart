@@ -12,8 +12,6 @@ class AppScope {
   final SessionService session = SessionService();
   final AttachmentPicker picker = AttachmentPicker();
 
-  // ✅ Switch later to FirestoreDoubtRepository()
   final DoubtRepository doubts = MockDoubtRepository();
   // final DoubtRepository doubts = FirestoreDoubtRepository();
 }
-

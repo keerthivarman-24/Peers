@@ -7,7 +7,9 @@ class Ui {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)]),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: AppTheme.iconIndigo, size: 22),
@@ -28,7 +30,11 @@ class Ui {
     );
   }
 
-  static Widget glassChild({required Widget child, double blur = 8, double radius = 18}) {
+  static Widget glassChild({
+    required Widget child,
+    double blur = 8,
+    double radius = 18,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: BackdropFilter(
@@ -49,4 +55,3 @@ class Ui {
     return '${diff.inDays}d ago';
   }
 }
-

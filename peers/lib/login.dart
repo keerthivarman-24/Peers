@@ -11,7 +11,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -24,7 +25,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 650))..forward();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..forward();
   }
 
   @override
@@ -41,10 +45,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (name == null || name.trim().isEmpty) return;
 
     await AppScope.I.session.setDisplayName(name.trim());
-    await AppScope.I.session.setUserId('guest_${DateTime.now().millisecondsSinceEpoch}');
+    await AppScope.I.session.setUserId(
+      'guest_${DateTime.now().millisecondsSinceEpoch}',
+    );
 
     if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 
   Future<void> _signInMock() async {
@@ -54,13 +63,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     try {
       await Future.delayed(const Duration(milliseconds: 650));
       final email = _email.text.trim();
-      final display = email.contains('@') ? email.split('@').first.replaceAll('.', ' ') : 'User';
+      final display = email.contains('@')
+          ? email.split('@').first.replaceAll('.', ' ')
+          : 'User';
 
       await AppScope.I.session.setDisplayName(_capWords(display));
       await AppScope.I.session.setUserId('u_${email.hashCode.abs()}');
 
       if (!mounted) return;
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -85,14 +99,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           content: TextField(
             controller: c,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Your name',
-              hintText: 'Eg: Keerthivarman',
-            ),
+            decoration: const InputDecoration(labelText: 'Your name'),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Cancel')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, c.text), child: const Text('Continue')),
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, c.text),
+              child: const Text('Continue'),
+            ),
           ],
         );
       },
@@ -113,7 +130,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 children: [
                   const SizedBox(height: 18),
                   FadeTransition(
-                    opacity: CurvedAnimation(parent: _anim, curve: Curves.easeOut),
+                    opacity: CurvedAnimation(
+                      parent: _anim,
+                      curve: Curves.easeOut,
+                    ),
                     child: Column(
                       children: [
                         Container(
@@ -127,19 +147,27 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 color: Colors.black.withOpacity(0.16),
                                 blurRadius: 18,
                                 offset: const Offset(0, 10),
-                              )
+                              ),
                             ],
                           ),
-                          child: const Icon(Icons.forum_rounded, color: Colors.white, size: 34),
+                          child: const Icon(
+                            Icons.forum_rounded,
+                            color: Colors.white,
+                            size: 34,
+                          ),
                         ),
                         const SizedBox(height: 14),
                         const Text(
                           'Welcome Back',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF111827)),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF111827),
+                          ),
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          'Sign in to continue (mock auth now)',
+                          'Sign in to continue',
                           style: TextStyle(fontSize: 14, color: AppTheme.muted),
                         ),
                       ],
@@ -147,29 +175,44 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                   const SizedBox(height: 22),
                   FadeTransition(
-                    opacity: CurvedAnimation(parent: _anim, curve: const Interval(0.2, 1.0, curve: Curves.easeOut)),
+                    opacity: CurvedAnimation(
+                      parent: _anim,
+                      curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+                    ),
                     child: _glassCard(),
                   ),
                   const SizedBox(height: 18),
                   TextButton(
                     onPressed: _continueAsGuest,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_outline, size: 18, color: Color(0xFF374151)),
+                        Icon(
+                          Icons.person_outline,
+                          size: 18,
+                          color: Color(0xFF374151),
+                        ),
                         SizedBox(width: 8),
-                        Text('Continue as guest', style: TextStyle(color: Color(0xFF111827))),
+                        Text(
+                          'Continue as guest',
+                          style: TextStyle(color: Color(0xFF111827)),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -179,8 +222,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(gradient: AppTheme.brandGradient, shape: BoxShape.circle),
-      foregroundDecoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
+      decoration: const BoxDecoration(
+        gradient: AppTheme.brandGradient,
+        shape: BoxShape.circle,
+      ),
+      foregroundDecoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        shape: BoxShape.circle,
+      ),
     );
   }
 
@@ -210,7 +259,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 TextFormField(
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration(label: 'Email', icon: Icons.email_outlined),
+                  decoration: _inputDecoration(
+                    label: 'Email',
+                    icon: Icons.email_outlined,
+                  ),
                   validator: (v) {
                     final s = (v ?? '').trim();
                     if (s.isEmpty) return 'Enter email';
@@ -226,7 +278,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     label: 'Password',
                     icon: Icons.lock_outline,
                     suffix: IconButton(
-                      icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, color: const Color(0xFF374151)),
+                      icon: Icon(
+                        _obscure ? Icons.visibility_off : Icons.visibility,
+                        color: const Color(0xFF374151),
+                      ),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
@@ -246,10 +301,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       elevation: 0,
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     child: Ink(
-                      decoration: BoxDecoration(gradient: AppTheme.brandGradient, borderRadius: BorderRadius.circular(14)),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.brandGradient,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       child: Container(
                         alignment: Alignment.center,
                         constraints: const BoxConstraints(minHeight: 48),
@@ -259,12 +319,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 width: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.4,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const Text(
                                 'Sign In',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
                               ),
                       ),
                     ),
@@ -278,16 +344,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  InputDecoration _inputDecoration({required String label, required IconData icon, Widget? suffix}) {
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffix,
+  }) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, color: const Color(0xFF374151)),
       suffixIcon: suffix,
       filled: true,
       fillColor: Colors.white.withOpacity(0.25),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
       contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
     );
   }
 }
-

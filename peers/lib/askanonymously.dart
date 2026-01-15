@@ -98,8 +98,14 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         controller: doubtController,
                         maxLines: 5,
                         maxLength: 500,
-                        validator: (v) => Validators.requiredText(v ?? '', message: 'Enter your doubt'),
-                        decoration: _inputDecoration(hint: 'Example: Why does current lead voltage in a capacitor?'),
+                        validator: (v) => Validators.requiredText(
+                          v ?? '',
+                          message: 'Enter your doubt',
+                        ),
+                        decoration: _inputDecoration(
+                          hint:
+                              'Example: Why does current lead voltage in a capacitor?',
+                        ),
                       ),
                       footerRight: '${doubtController.text.trim().length}/500',
                     ),
@@ -112,7 +118,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         controller: attemptController,
                         maxLines: 4,
                         maxLength: 800,
-                        decoration: _inputDecoration(hint: 'Write steps / formulas / assumptions…'),
+                        decoration: _inputDecoration(
+                          hint: 'Write steps / formulas / assumptions…',
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -127,7 +135,8 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         keyboardType: TextInputType.url,
                         validator: (v) {
                           final s = (v ?? '').trim();
-                          if (!Validators.isValidUrl(s)) return 'Enter a valid URL (https://...)';
+                          if (!Validators.isValidUrl(s))
+                            return 'Enter a valid URL (https://...)';
                           return null;
                         },
                         decoration: _inputDecoration(hint: 'Paste a URL here'),
@@ -151,7 +160,12 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
 
   Widget _topHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 14, 18, 18),
+      padding: EdgeInsets.fromLTRB(
+        18,
+        MediaQuery.of(context).padding.top + 14,
+        18,
+        18,
+      ),
       decoration: BoxDecoration(
         gradient: AppTheme.brandGradient,
         borderRadius: const BorderRadius.only(
@@ -163,7 +177,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             color: AppTheme.primary.withOpacity(0.22),
             blurRadius: 22,
             offset: const Offset(0, 10),
-          )
+          ),
         ],
       ),
       child: Row(
@@ -186,9 +200,19 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ask a Question', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text(
+                  'Ask a Question',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Choose anonymous or show your name.', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  'Choose anonymous or show your name.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -202,7 +226,10 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.white.withOpacity(0.12)),
               ),
-              child: const Icon(Icons.info_outline_rounded, color: Colors.white),
+              child: const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -227,26 +254,46 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Posting Identity', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                    Text(
+                      'Posting Identity',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5,
+                        color: AppTheme.text,
+                      ),
+                    ),
                     SizedBox(height: 2),
-                    Text('Choose how your post appears to others.', style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
+                    Text(
+                      'Choose how your post appears to others.',
+                      style: TextStyle(fontSize: 12.5, color: AppTheme.muted),
+                    ),
                   ],
                 ),
               ),
               if (loadingIdentity)
-                const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2.2))
+                const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2.2),
+                )
               else
                 IconButton(
                   tooltip: 'Refresh',
                   onPressed: _loadIdentity,
-                  icon: const Icon(Icons.refresh_rounded, color: AppTheme.muted),
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: AppTheme.muted,
+                  ),
                 ),
             ],
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -254,7 +301,8 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                     selected: identity == PostIdentity.anonymous,
                     label: 'Anonymous',
                     icon: Icons.visibility_off_rounded,
-                    onTap: () => setState(() => identity = PostIdentity.anonymous),
+                    onTap: () =>
+                        setState(() => identity = PostIdentity.anonymous),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -265,7 +313,10 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                     icon: Icons.badge_rounded,
                     onTap: () {
                       if (!canUseName) {
-                        Ui.snack(context, "No name found. Set it in Login/Guest to use 'Show Name'.");
+                        Ui.snack(
+                          context,
+                          "No name found. Set it in Login/Guest to use 'Show Name'.",
+                        );
                         setState(() => identity = PostIdentity.anonymous);
                         return;
                       }
@@ -284,27 +335,53 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(gradient: AppTheme.brandGradient, borderRadius: BorderRadius.circular(999)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.brandGradient,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.badge_outlined, size: 16, color: Colors.white),
+                      const Icon(
+                        Icons.badge_outlined,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 8),
-                      Text('Posting as: ${displayName ?? ''}',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12.5)),
+                      Text(
+                        'Posting as: ${displayName ?? ''}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12.5,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const Text('Visible to everyone', style: TextStyle(color: AppTheme.muted, fontSize: 12.5)),
+                const Text(
+                  'Visible to everyone',
+                  style: TextStyle(color: AppTheme.muted, fontSize: 12.5),
+                ),
               ],
             )
           else
             const Row(
               children: [
-                Icon(Icons.lock_outline_rounded, size: 16, color: AppTheme.muted),
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 16,
+                  color: AppTheme.muted,
+                ),
                 SizedBox(width: 6),
-                Text('Your identity will not be visible to others.', style: TextStyle(fontSize: 12, color: AppTheme.muted)),
+                Text(
+                  'Your identity will not be visible to others.',
+                  style: TextStyle(fontSize: 12, color: AppTheme.muted),
+                ),
               ],
             ),
         ],
@@ -312,7 +389,12 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
     );
   }
 
-  Widget _segment({required bool selected, required String label, required IconData icon, required VoidCallback onTap}) {
+  Widget _segment({
+    required bool selected,
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
@@ -327,14 +409,20 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: selected ? Colors.white : AppTheme.muted),
+            Icon(
+              icon,
+              size: 18,
+              color: selected ? Colors.white : AppTheme.muted,
+            ),
             const SizedBox(width: 8),
-            Text(label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: selected ? Colors.white : AppTheme.muted,
-                  fontSize: 13.5,
-                )),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: selected ? Colors.white : AppTheme.muted,
+                fontSize: 13.5,
+              ),
+            ),
           ],
         ),
       ),
@@ -356,12 +444,22 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Tags', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                    Text(
+                      'Tags',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5,
+                        color: AppTheme.text,
+                      ),
+                    ),
                     SizedBox(height: 2),
-                    Text('Select 1–3 tags for better reach.', style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
+                    Text(
+                      'Select 1–3 tags for better reach.',
+                      style: TextStyle(fontSize: 12.5, color: AppTheme.muted),
+                    ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -386,16 +484,27 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: selected ? AppTheme.primary.withOpacity(0.12) : const Color(0xFFF3F4F6),
+                    color: selected
+                        ? AppTheme.primary.withOpacity(0.12)
+                        : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: selected ? AppTheme.primary.withOpacity(0.35) : Colors.transparent),
+                    border: Border.all(
+                      color: selected
+                          ? AppTheme.primary.withOpacity(0.35)
+                          : Colors.transparent,
+                    ),
                   ),
                   child: Text(
                     t,
                     style: TextStyle(
-                      color: selected ? AppTheme.primary : const Color(0xFF374151),
+                      color: selected
+                          ? AppTheme.primary
+                          : const Color(0xFF374151),
                       fontWeight: FontWeight.w800,
                       fontSize: 12.2,
                     ),
@@ -424,11 +533,19 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Attachments (Optional)',
-                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                    Text(
+                      'Attachments (Optional)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5,
+                        color: AppTheme.text,
+                      ),
+                    ),
                     SizedBox(height: 2),
-                    Text('UI ready. Picker/storage will be connected later.',
-                        style: TextStyle(fontSize: 12.5, color: AppTheme.muted)),
+                    Text(
+                      'UI ready. Picker/storage will be connected later.',
+                      style: TextStyle(fontSize: 12.5, color: AppTheme.muted),
+                    ),
                   ],
                 ),
               ),
@@ -437,11 +554,22 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                child: const Text('Add', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
-              )
+                child: const Text(
+                  'Add',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
             ],
           ),
           if (_attachments.isNotEmpty) ...[
@@ -459,27 +587,38 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.insert_drive_file_rounded, color: AppTheme.iconIndigo),
+                        const Icon(
+                          Icons.insert_drive_file_rounded,
+                          color: AppTheme.iconIndigo,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             a.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: AppTheme.text, fontWeight: FontWeight.w800),
+                            style: const TextStyle(
+                              color: AppTheme.text,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                         IconButton(
                           tooltip: 'Remove',
-                          onPressed: () => setState(() => _attachments.removeWhere((x) => x.id == a.id)),
-                          icon: const Icon(Icons.close_rounded, color: AppTheme.muted),
-                        )
+                          onPressed: () => setState(
+                            () => _attachments.removeWhere((x) => x.id == a.id),
+                          ),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: AppTheme.muted,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 );
               }).toList(),
-            )
+            ),
           ],
         ],
       ),
@@ -520,11 +659,23 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title,
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5, color: AppTheme.text)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15.5,
+                          color: AppTheme.text,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(subtitle,
-                          style: const TextStyle(fontSize: 12.5, color: AppTheme.muted, height: 1.25)),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppTheme.muted,
+                          height: 1.25,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -536,10 +687,16 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(footerRight,
-                    style: const TextStyle(color: AppTheme.muted, fontWeight: FontWeight.w800, fontSize: 12)),
-              )
-            ]
+                child: Text(
+                  footerRight,
+                  style: const TextStyle(
+                    color: AppTheme.muted,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -552,7 +709,10 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
       hintStyle: TextStyle(color: AppTheme.muted.withOpacity(0.85)),
       filled: true,
       fillColor: const Color(0xFFF9FAFB),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       counterText: '',
     );
@@ -576,7 +736,11 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             Expanded(
               child: Text(
                 'Tips: Add tag + what you tried. It increases good answers.',
-                style: TextStyle(color: AppTheme.muted, fontSize: 12.5, height: 1.25),
+                style: TextStyle(
+                  color: AppTheme.muted,
+                  fontSize: 12.5,
+                  height: 1.25,
+                ),
               ),
             ),
             Icon(Icons.chevron_right_rounded, color: AppTheme.muted),
@@ -591,7 +755,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
       context: context,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
       builder: (_) {
         return const Padding(
           padding: EdgeInsets.fromLTRB(18, 8, 18, 18),
@@ -599,8 +765,14 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('How to get better answers',
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppTheme.text)),
+              Text(
+                'How to get better answers',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  color: AppTheme.text,
+                ),
+              ),
               SizedBox(height: 10),
               _Tip('Choose 1–3 relevant tags.'),
               _Tip('Include known values + what you tried.'),
@@ -616,7 +788,9 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
 
   Widget _submitBar() {
     final isNamed = identity == PostIdentity.named;
-    final helper = isNamed ? 'Your name will be visible on this post' : 'Your identity stays hidden';
+    final helper = isNamed
+        ? 'Your name will be visible on this post'
+        : 'Your identity stays hidden';
     final btnText = isNamed ? 'Post with Name' : 'Post Anonymously';
 
     return Column(
@@ -624,10 +798,19 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
       children: [
         Row(
           children: [
-            Icon(isNamed ? Icons.badge_outlined : Icons.lock_outline_rounded,
-                size: 16, color: AppTheme.muted.withOpacity(0.95)),
+            Icon(
+              isNamed ? Icons.badge_outlined : Icons.lock_outline_rounded,
+              size: 16,
+              color: AppTheme.muted.withOpacity(0.95),
+            ),
             const SizedBox(width: 6),
-            Text(helper, style: TextStyle(color: AppTheme.muted.withOpacity(0.95), fontSize: 12.5)),
+            Text(
+              helper,
+              style: TextStyle(
+                color: AppTheme.muted.withOpacity(0.95),
+                fontSize: 12.5,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -638,7 +821,10 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                   final ok = _formKey.currentState?.validate() ?? false;
                   if (!ok) return;
                   if (identity == PostIdentity.named && !canUseName) {
-                    Ui.snack(context, 'No name found. Use Anonymous or set name in Login.');
+                    Ui.snack(
+                      context,
+                      'No name found. Use Anonymous or set name in Login.',
+                    );
                     return;
                   }
                   await _submit();
@@ -667,11 +853,19 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
                         width: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
-                    : Text(btnText,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+                    : Text(
+                        btnText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -704,7 +898,7 @@ class _AskAnonymouslyScreenState extends State<AskAnonymouslyScreen> {
         return;
       }
 
-      Ui.snack(context, 'Posted ✅ (mock backend). Firebase later.');
+      Ui.snack(context, 'Posted successfully');
       Navigator.pop(context);
     } catch (_) {
       if (!mounted) return;
@@ -726,14 +920,24 @@ class _Tip extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle_rounded, size: 18, color: AppTheme.primary),
+          const Icon(
+            Icons.check_circle_rounded,
+            size: 18,
+            color: AppTheme.primary,
+          ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(text, style: const TextStyle(color: Color(0xFF374151), fontSize: 13, height: 1.25)),
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF374151),
+                fontSize: 13,
+                height: 1.25,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 }
-

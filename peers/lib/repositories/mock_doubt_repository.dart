@@ -27,11 +27,11 @@ class MockDoubtRepository implements DoubtRepository {
         createdAt: now.subtract(const Duration(hours: 4)),
         upvotes: 6,
         answers: 2,
-
         answerList: [
           Answer(
             id: 'a1',
-            body: '...',
+            body:
+                'Capacitor current depends on rate of change of voltage; with sinusoidal signals it leads by 90°.',
             isAnonymous: false,
             authorName: 'Senior',
             authorId: 'u2',
@@ -40,11 +40,12 @@ class MockDoubtRepository implements DoubtRepository {
           ),
           Answer(
             id: 'a2',
-            body: '...',
+            body:
+                'Think of capacitor as storing charge; current flows first to change the stored charge before voltage builds up.',
             isAnonymous: true,
             authorName: null,
             authorId: null,
-            createdAt: now.subtract(const Duration(days: 2)),
+            createdAt: DateTime(2026, 1, 11),
             upvotes: 2,
           ),
         ],
@@ -55,7 +56,7 @@ class MockDoubtRepository implements DoubtRepository {
         attempt: 'I can build UI but state mgmt confuses me.',
         link: 'https://flutter.dev',
         isAnonymous: false,
-        authorName: 'Keerthi',
+        authorName: 'Ram',
         authorId: 'u1',
         tags: const ['Flutter', 'Programming'],
         attachments: const [],
