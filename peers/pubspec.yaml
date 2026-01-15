@@ -11,7 +11,10 @@ dependencies:
     sdk: flutter
   
   shared_preferences: ^2.2.15
+  cloud_firestore: ^6.1.1
   file_picker: ^10.3.8
+  firebase_core: ^4.3.0
+
 
 dev_dependencies:
   flutter_test:

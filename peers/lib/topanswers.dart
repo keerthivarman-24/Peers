@@ -1,164 +1,248 @@
 import 'package:flutter/material.dart';
 
-class TopAnswersScreen extends StatelessWidget {
+import 'app_scope.dart';
+import 'core/app_theme.dart';
+import 'core/ui.dart';
+import 'doubt_details.dart';
+import 'models/doubt.dart';
+
+class TopAnswersScreen extends StatefulWidget {
   const TopAnswersScreen({super.key});
+
+  @override
+  State<TopAnswersScreen> createState() => _TopAnswersScreenState();
+}
+
+class _TopAnswersScreenState extends State<TopAnswersScreen> {
+  bool loading = true;
+  List<Doubt> list = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => loading = true);
+    final res = await AppScope.I.doubts.fetchTopAnswers();
+    if (!mounted) return;
+    setState(() {
+      list = res.data ?? [];
+      loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
-      appBar: AppBar(
-        title: const Text("Top Answers"),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: const Color(0xFF1F2937),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: _mockTopAnswers.length,
-        itemBuilder: (context, index) {
-          final answer = _mockTopAnswers[index];
-          return TopAnswerCard(
-            rank: index + 1,
-            upvotes: answer.upvotes,
-            answerText: answer.text,
-            subject: answer.subject,
-          );
-        },
+      backgroundColor: AppTheme.bg,
+      body: RefreshIndicator(
+        onRefresh: _load,
+        color: AppTheme.primary,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _header(context)),
+            if (loading)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  child: LinearProgressIndicator(minHeight: 3),
+                ),
+              ),
+            if (!loading && list.isEmpty)
+              SliverToBoxAdapter(child: _empty())
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+                sliver: SliverList.separated(
+                  itemCount: list.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => _card(list[i]),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
-}
 
-/* -------------------- TOP ANSWER CARD -------------------- */
-
-class TopAnswerCard extends StatelessWidget {
-  final int rank;
-  final int upvotes;
-  final String answerText;
-  final String subject;
-
-  const TopAnswerCard({
-    super.key,
-    required this.rank,
-    required this.upvotes,
-    required this.answerText,
-    required this.subject,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _header(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+      padding: EdgeInsets.fromLTRB(
+        18,
+        MediaQuery.of(context).padding.top + 14,
+        18,
+        18,
+      ),
+      decoration: const BoxDecoration(
+        gradient: AppTheme.brandGradient,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+              ),
+              child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Top Answers',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Questions with the most answers.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    );
+  }
+
+  Widget _card(Doubt d) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => DoubtDetailsScreen(doubtId: d.id)),
+      ),
+      child: Ui.glassChild(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: Ui.cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: Colors.white,
-                child: Text(
-                  "#$rank",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4F46E5),
+              Row(
+                children: [
+                  Ui.iconBadge(Icons.star_rounded),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      d.question,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.text,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
-              const SizedBox(width: 4),
-              Text(
-                "$upvotes",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  subject,
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _pill('Answers: ${d.answers}'),
+                  const SizedBox(width: 8),
+                  _pill('Upvotes: ${d.upvotes}'),
+                  const Spacer(),
+                  Text(
+                    Ui.timeAgo(d.createdAt),
+                    style: const TextStyle(
+                      color: AppTheme.muted,
+                      fontSize: 12.2,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            answerText,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _pill(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppTheme.muted,
+          fontWeight: FontWeight.w900,
+          fontSize: 12.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _empty() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.star_rounded,
+                color: AppTheme.iconIndigo,
+                size: 28,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            "— Anonymous Solver",
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Text(
+              'No data yet',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.5,
+                color: AppTheme.text,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Once users answer doubts, this will populate.',
+              style: TextStyle(color: AppTheme.muted, fontSize: 12.5),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-/* -------------------- MOCK DATA -------------------- */
-
-class TopAnswer {
-  final String text;
-  final int upvotes;
-  final String subject;
-
-  TopAnswer({required this.text, required this.upvotes, required this.subject});
-}
-
-final List<TopAnswer> _mockTopAnswers = [
-  TopAnswer(
-    text:
-        "Kirchhoff’s Current Law states that the algebraic sum of currents at a node is zero. "
-        "This comes directly from conservation of charge.",
-    upvotes: 214,
-    subject: "Circuit Theory",
-  ),
-  TopAnswer(
-    text:
-        "In quicksort, choosing a good pivot reduces time complexity significantly. "
-        "Randomized pivot selection avoids worst cases.",
-    upvotes: 187,
-    subject: "Computer Science",
-  ),
-  TopAnswer(
-    text:
-        "Quantum entanglement is a physical phenomenon where pairs of particles become linked, ",
-    upvotes: 162,
-    subject: "Quantum Physics",
-  ),
-];

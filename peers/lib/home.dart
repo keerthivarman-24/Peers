@@ -1,156 +1,196 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:peers/askanonymously.dart';
-import 'package:peers/browsedoubts.dart';
-import 'package:peers/myactivity.dart';
-import 'package:peers/topanswers.dart';
+import 'core/app_theme.dart';
+import 'core/ui.dart';
+import 'askanonymously.dart';
+import 'browsedoubts.dart';
+import 'myactivity.dart';
+import 'topanswers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fabController;
+  late final Animation<double> _fabAnimation;
+
+  final List<_Feature> _features = const [
+    _Feature(
+      Icons.help_outline_rounded,
+      'Ask Anonymously',
+      'No identity. No fear.',
+      AskAnonymouslyScreen(),
+    ),
+    _Feature(
+      Icons.explore_rounded,
+      'Browse Doubts',
+      'Explore community questions',
+      BrowseDoubtsScreen(),
+    ),
+    _Feature(
+      Icons.history_rounded,
+      'My Activity',
+      'Your questions & answers',
+      MyActivityScreen(),
+    ),
+    _Feature(
+      Icons.star_border_rounded,
+      'Top Answers',
+      'Community wisdom',
+      TopAnswersScreen(),
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+    _fabAnimation = CurvedAnimation(
+      parent: _fabController,
+      curve: Curves.easeOutBack,
+    );
+    _fabController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  void _onFeatureTap(int i) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => _features[i].screen),
+    );
+  }
+
+  void _onAsk() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AskAnonymouslyScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const AskAnonymouslyScreen(),
+      backgroundColor: AppTheme.bg,
+      floatingActionButton: ScaleTransition(
+        scale: _fabAnimation,
+        child: FloatingActionButton.extended(
+          onPressed: _onAsk,
+          elevation: 6,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: AppTheme.brandGradient,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-          );
-        },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        label: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
-            ),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          
-          child: const Text(
-            "Ask a Doubt",
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: Colors.white,
+            child: const Text(
+              'Ask a Doubt',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
             ),
           ),
         ),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 30),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: GridView.count(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _header()),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final f = _features[index];
+                  return _FeatureCard(
+                    icon: f.icon,
+                    title: f.title,
+                    subtitle: f.subtitle,
+                    onTap: () => _onFeatureTap(index),
+                  );
+                }, childCount: _features.length),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const AskAnonymouslyScreen(),
-                          ),
-                        );
-                      },
-                      child: FeatureCard(
-                        icon: Icons.help_outline_rounded,
-                        title: "Ask Anonymously",
-                        subtitle: "No identity. No fear.",
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const BrowseDoubtsScreen(),
-                          ),
-                        );
-                      },
-                      child: FeatureCard(
-                        icon: Icons.explore_rounded,
-                        title: "Browse Doubts",
-                        subtitle: "Explore community questions",
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to My Activity Screen
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const MyActivityScreen())
-                        );
-                        
-                      },
-                      child: FeatureCard(
-                        icon: Icons.history_rounded,
-                        title: "My Activity",
-                        subtitle: "Your questions & answers",
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const TopAnswersScreen(),
-                          ),
-                        );
-                      },
-                      child: FeatureCard(
-                        icon: Icons.star_border_rounded,
-                        title: "Top Answers",
-                        subtitle: "Community wisdom",
-                      ),
-                    ),
-                  ],
+                  mainAxisSpacing: 18,
+                  crossAxisSpacing: 18,
+                  childAspectRatio: 0.95,
                 ),
               ),
             ),
+            const SliverToBoxAdapter(child: SizedBox(height: 28)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _header() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
-        ),
+        gradient: AppTheme.brandGradient,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            "Ask Freely 👋",
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+            child: const Icon(
+              Icons.forum_rounded,
               color: Colors.white,
+              size: 28,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "No names. No judgement.\nJust learning.",
-            style: TextStyle(fontSize: 15, color: Colors.white70),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Peers',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Ask freely. Learn faster.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => Ui.snack(context, 'Settings/profile later'),
+            icon: const Icon(Icons.more_vert, color: Colors.white70),
           ),
         ],
       ),
@@ -158,56 +198,78 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class FeatureCard extends StatelessWidget {
+class _Feature {
   final IconData icon;
   final String title;
   final String subtitle;
+  final Widget screen;
+  const _Feature(this.icon, this.title, this.subtitle, this.screen);
+}
 
-  const FeatureCard({
-    super.key,
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _FeatureCard({
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.75),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 34, color: const Color(0xFF4F46E5)),
-              const SizedBox(height: 14),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
+      borderRadius: BorderRadius.circular(16),
+      child: Material(
+        color: Colors.white,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: AppTheme.primary.withValues(alpha: 0.08),
+          highlightColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: Ui.cardDecoration(radius: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFEEF2FF), Color(0xFFEDE7FE)],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 28, color: AppTheme.primary),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 13, color: AppTheme.muted),
+                ),
+                const Spacer(),
+                const Align(
+                  alignment: Alignment.bottomRight,
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

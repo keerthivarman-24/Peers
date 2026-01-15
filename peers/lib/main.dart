@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
+import 'core/app_theme.dart';
 import 'login.dart';
 
+void main() {
+  runApp(const PeersApp());
+}
 
-void main() => runApp(MyApp());
+class PeersApp extends StatelessWidget {
+  const PeersApp({super.key});
 
-class MyApp extends StatelessWidget {
-  final Color bg = const Color(0xFFFAFAFB);
-  final isLoggedIn = false;
-  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Peers',
-      theme: ThemeData(
-        scaffoldBackgroundColor: bg,
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: Color(0xFF536DFE),
-        ),
-      ),
-      home: LoginScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      home: const LoginScreen(),
     );
   }
 }
