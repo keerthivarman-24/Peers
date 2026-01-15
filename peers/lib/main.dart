@@ -19,4 +19,3 @@ class PeersApp extends StatelessWidget {
     );
   }
 }
-

@@ -31,5 +31,22 @@ class AppTheme {
       ),
     );
   }
-}
 
+  static ThemeData dark() {
+    final cs = ColorScheme.fromSeed(seedColor: primary);
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: cs,
+      scaffoldBackgroundColor: const Color.fromARGB(255, 28, 28, 30),
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    );
+  }
+}

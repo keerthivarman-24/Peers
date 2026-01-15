@@ -1,2 +1,4 @@
 peers/android/app/google-services.json
 peers/firebase.json
+peers/lib/firebase_options.dart
+peers/lib/firebase_bootstrap.dart
